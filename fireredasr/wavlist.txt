@@ -1,0 +1,4 @@
+/Users/lianghu/code/FireRedASRONNX/fireredasr/wav/TEST_NET_Y0000000000_-KTKHdZ2fb8_S00000.wav
+/Users/lianghu/code/FireRedASRONNX/fireredasr/wav/IT0011W0001.wav
+/Users/lianghu/code/FireRedASRONNX/fireredasr/wav/BAC009S0764W0121.wav
+/Users/lianghu/code/FireRedASRONNX/fireredasr/wav/TEST_MEETING_T0000000001_S00000.wav
