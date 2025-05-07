@@ -8,4 +8,6 @@ include(onnxruntime)
 include(gflags)
 include(kaldi-native-fbank)
 
+
 add_subdirectory(examples)
+add_subdirectory(recognizer)
