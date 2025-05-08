@@ -1,6 +1,7 @@
 #include "offline-whisper-model.h"
 #include "macros.h"
 #include "onnx-utils.h"
+#include "text-utils.h"
 
 #include <fstream>
 #include <sstream>
@@ -19,7 +20,7 @@ class OfflineWhisperModel::Impl {
 public:
   explicit Impl(const OfflineWhisperModelConfig &config)
     : config_(config),
-      env_(ORT_LOGGING_LEVEL_ERROR)
+      env_(ORT_LOGGING_LEVEL_ERROR),
       sess_opts_(sherpa_onnx::GetSessionOptions(
         config.inter_op_num_threads,
         config.intra_op_num_threads,
@@ -71,6 +72,23 @@ public:
   }
 
   std::pair<Ort::Value, Ort::Value> GetInitialSelfKVCache() {
+    std::array<int64_t, 4> shape{n_text_layer_, 1, n_text_ctx_, n_text_state_};
+
+    Ort::Value n_layer_self_k_cache = Ort::Value::CreateTensor<float>(
+        Allocator(), shape.data(), shape.size());
+
+    Ort::Value n_layer_self_v_cache = Ort::Value::CreateTensor<float>(
+        Allocator(), shape.data(), shape.size());
+
+    auto n = shape[0] * shape[1] * shape[2] * shape[3];
+
+    float *p_k = n_layer_self_k_cache.GetTensorMutableData<float>();
+    float *p_v = n_layer_self_v_cache.GetTensorMutableData<float>();
+
+    memset(p_k, 0, sizeof(float) * n);
+    memset(p_v, 0, sizeof(float) * n);
+
+    return {std::move(n_layer_self_k_cache), std::move(n_layer_self_v_cache)};
   }
 
   int32_t DetectLanguage(Ort::Value &cross_k,    // NOLINT
@@ -217,7 +235,7 @@ private:
 
 
 private:
-  OfflineOfflineWhisperModelConfig config_;
+  OfflineWhisperModelConfig config_;
   Ort::Env env_;
   Ort::SessionOptions sess_opts_;
   Ort::AllocatorWithDefaultOptions allocator_;
@@ -259,6 +277,8 @@ private:
   std::vector<int64_t> sot_sequence_;
 };
 
+OfflineWhisperModel::OfflineWhisperModel(const OfflineWhisperModelConfig& config)
+    : impl_(new Impl(config)) {}
 
 OfflineWhisperModel::~OfflineWhisperModel() = default;
 

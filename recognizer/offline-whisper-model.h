@@ -1,5 +1,5 @@
-#ifndef WHISPER_MODEL_H_
-#define WHISPER_MODEL_H_
+#ifndef OFFLINE_WHISPER_MODEL_H_
+#define OFFLINE_WHISPER_MODEL_H_
 
 #include "offline-whisper-model-config.h"
 #include "onnxruntime_cxx_api.h"

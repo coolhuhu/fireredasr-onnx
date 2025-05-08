@@ -23,6 +23,7 @@
 #include <mutex>  // NOLINT
 #include <vector>
 #include <iostream>
+#include <cstdlib>
 
 #include "kaldi-native-fbank/csrc/online-feature.h"
 

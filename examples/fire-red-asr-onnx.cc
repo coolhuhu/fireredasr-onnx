@@ -1,7 +1,7 @@
 #include "onnxruntime_cxx_api.h"
 #include "gflags/gflags.h"
-#include "wav.h"
-#include "features.h"
+#include "recognizer/wav.h"
+#include "recognizer/features.h"
 
 #include <iostream>
 #include <sstream>

@@ -6,6 +6,12 @@
 
 namespace sherpa_onnx {
 
+struct OfflineWhisperDecoderResult {
+  /// The decoded token IDs
+  std::vector<int32_t> tokens;
+  std::string lang;
+};
+
 class OfflineWhisperGreedySearchDecoder {
 public:
   OfflineWhisperGreedySearchDecoder(const OfflineWhisperModelConfig &config,

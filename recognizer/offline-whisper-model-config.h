@@ -67,8 +67,10 @@ struct OfflineWhisperModelConfig {
       tail_paddings(tail_paddings),
       inter_op_num_threads(inter_op_num_threads),
       intra_op_num_threads(intra_op_num_threads) {}
+
+  std::string ToString() const;
 };
 
-// namespace sherpa_onnx
+} // namespace sherpa_onnx
 
 #endif  // OFFLINE_WHISPER_MODEL_CONFIG_H_

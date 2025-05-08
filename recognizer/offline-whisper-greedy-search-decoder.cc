@@ -1,10 +1,11 @@
 #include "offline-whisper-greedy-search-decoder.h"
+#include "macros.h"
 
 
 namespace sherpa_onnx {
 
 void OfflineWhisperGreedySearchDecoder::SetConfig(
-    const OfflineWhisperGreedySearchDecoder &config) {
+    const OfflineWhisperModelConfig &config) {
   config_ = config;
 }
 
@@ -133,8 +134,18 @@ OfflineWhisperGreedySearchDecoder::Decode(Ort::Value cross_k,
         p_logits, std::max_element(p_logits, p_logits + vocab_size)));
   }
 
+  std::vector<OfflineWhisperDecoderResult> ans(1);
 
-  
+  const auto &id2lang = model_->GetID2Lang();
+  if (id2lang.count(initial_tokens[1])) {
+    ans[0].lang = id2lang.at(initial_tokens[1]);
+  } else {
+    ans[0].lang = "";
+  }
+
+  ans[0].tokens = std::move(predicted_tokens);
+
+  return ans; 
 }
 
 
