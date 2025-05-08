@@ -6,16 +6,19 @@
 #include "recognizer/features.h"
 #include "recognizer/whisper-features.h"
 #include "recognizer/wave-reader.h"
+#include "recognizer/symbol-table.h"
+#include "recognizer/text-utils.h"
 
 #include "kaldi-native-fbank/csrc/online-feature.h"
 
 #include <iostream>
 #include <memory>
 
-DEFINE_string(encoder_file, "", "Path to encoder model file");
-DEFINE_string(decoder_file, "", "Path to decoder model file");
+DEFINE_string(encoder, "", "Path to encoder model file");
+DEFINE_string(decoder, "", "Path to decoder model file");
 DEFINE_string(language, "en", "Path to decoder model file");
-DEFINE_string(wav_file, "", "Path to wav file");
+DEFINE_string(wav, "", "Path to wav file");
+DEFINE_string(token, "", "Path to token file");
 
 
 template <typename T /*= float*/>
@@ -46,10 +49,13 @@ int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, false);
 
   sherpa_onnx::OfflineWhisperModelConfig config;
-  config.encoder = FLAGS_encoder_file;
-  config.decoder = FLAGS_decoder_file;
+  config.encoder = FLAGS_encoder;
+  config.decoder = FLAGS_decoder;
   // config.language = FLAGS_language;
   std::cout << config.ToString() << std::endl;
+
+  sherpa_onnx::SymbolTable symbol_table(FLAGS_token);
+  symbol_table.ApplyBase64Decode();
 
   // 1. load model
   std::unique_ptr<sherpa_onnx::OfflineWhisperModel> model(
@@ -68,9 +74,9 @@ int main(int argc, char** argv) {
 
   int32_t sample_rate = -1;
   bool is_ok = false;
-  std::vector<float> waveform =sherpa_onnx::ReadWave(FLAGS_wav_file, &sample_rate, &is_ok);
+  std::vector<float> waveform =sherpa_onnx::ReadWave(FLAGS_wav, &sample_rate, &is_ok);
   if (!is_ok) {
-    std::cerr << "read wav " << FLAGS_wav_file << " error." << std::endl;
+    std::cerr << "read wav " << FLAGS_wav << " error." << std::endl;
     exit(-1);
   }
 
@@ -136,4 +142,25 @@ int main(int argc, char** argv) {
     std::cout << t << " ";
   }
   std::cout << std::endl;
+
+  std::vector<std::string> tokens;
+  tokens.reserve(results[0].tokens.size());
+  std::string text;
+  for (auto i : results[0].tokens) {
+    if (!symbol_table.Contains(i)) {
+      continue;
+    }
+
+    std::string s = symbol_table[i];
+    s = sherpa_onnx::RemoveInvalidUtf8Sequences(s);
+    text += s;
+    tokens.push_back(s);
+  }
+
+  std::cout << "text: " << text << std::endl;
+  for (const auto& token :tokens) {
+    std::cout << token << " ";
+  }
+  std::cout << std::endl;
+
 }

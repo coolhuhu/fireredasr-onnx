@@ -11,6 +11,9 @@ set(
   onnx-utils.cc
   text-utils.cc
   wave-reader.cc
+  base64-decode.cc
+  bbpe.cc
+  symbol-table.cc
 )
 
 add_library(recognizer SHARED ${sources})
